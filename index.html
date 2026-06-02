@@ -258,8 +258,8 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
         <div class="field">
           <label>本金</label>
           <div class="input-wrap">
-            <input type="number" id="principal" value="1000000" inputmode="numeric" min="0" step="10000">
-            <span class="suffix">元</span>
+            <input type="number" id="principal" value="100" inputmode="decimal" min="0" step="10">
+            <span class="suffix">萬元</span>
           </div>
         </div>
 
@@ -416,13 +416,14 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
   }
 
   function calculate() {
-    const principal  = parseFloat(document.getElementById('principal').value)  || 0;
+    const principalWan = parseFloat(document.getElementById('principal').value) || 0;
+    const principal    = principalWan * 10000;
     const buyNav     = parseFloat(document.getElementById('buyNav').value)      || 0;
     const currentNav = parseFloat(document.getElementById('currentNav').value) || 0;
     const monthCount = parseInt(document.getElementById('monthCount').value)   || 0;
     const bonusCount = parseInt(document.getElementById('bonusCount').value)   || 0;
 
-    if (!principal || !buyNav) return;
+    if (!principalWan || !buyNav) return;
 
     const feeRate = getFeeRate(principal);
 
@@ -430,7 +431,7 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
     const feeDisplay = document.getElementById('feeRateDisplay');
     const feeBadge   = document.getElementById('feeBadge');
     feeDisplay.textContent = (feeRate * 100).toFixed(1) + '%';
-    if (principal > 2000000) {
+    if (principalWan > 200) {
       feeDisplay.style.color = '#059669';
       feeBadge.textContent = '超200萬';
     } else {
