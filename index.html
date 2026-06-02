@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>月月泰利 試算</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --blue: #1d4ed8;
+  --blue-light: #eff6ff;
+  --green: #059669;
+  --green-light: #f0fdf4;
+  --orange: #ea580c;
+  --orange-light: #fff7ed;
+  --purple: #7c3aed;
+  --purple-light: #faf5ff;
+  --gray: #64748b;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-sub: #64748b;
+  --locked-bg: #f8fafc;
+  --locked-border: #e2e8f0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 20px 16px env(safe-area-inset-bottom, 24px);
+  color: var(--text);
+}
+
+/* ── Header ── */
+.hdr {
+  text-align: center;
+  padding: 4px 0 20px;
+}
+.hdr h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: 0.06em;
+}
+.hdr p { font-size: 0.82rem; color: var(--text-sub); margin-top: 4px; }
+
+/* ── Layout: side-by-side on iPad ── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+@media (min-width: 680px) {
+  .layout { grid-template-columns: 340px 1fr; align-items: start; }
+}
+
+/* ── Card ── */
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 22px 20px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+}
+.card + .card { margin-top: 16px; }
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px; height: 16px;
+  background: var(--blue);
+  border-radius: 2px;
+}
+
+/* ── Inputs ── */
+.fields { display: flex; flex-direction: column; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  letter-spacing: 0.01em;
+}
+
+.input-wrap { position: relative; }
+.input-wrap .suffix {
+  position: absolute;
+  right: 14px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.82rem;
+  color: var(--text-sub);
+  pointer-events: none;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 14px 40px 14px 16px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  background: #f8fafc;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: #fff;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── Locked display ── */
+.locked-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--locked-bg);
+  border: 1.5px solid var(--locked-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.locked-row .lk-label {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+.locked-row .lk-val {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.locked-row .lk-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #64748b;
+  border-radius: 6px;
+  padding: 2px 7px;
+  margin-left: 8px;
+  letter-spacing: 0.04em;
+}
+.locked-row .lk-badge.auto {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.divider {
+  border: none;
+  border-top: 1.5px solid var(--border);
+  margin: 16px 0;
+}
+
+/* ── Results ── */
+.big-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.big-box {
+  border-radius: 14px;
+  padding: 16px 12px;
+  text-align: center;
+}
+.big-box .bb-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.big-box .bb-val {
+  font-size: 1.45rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+@media (min-width: 680px) {
+  .big-box .bb-val { font-size: 1.6rem; }
+}
+
+.bb-blue   { background: var(--blue-light);   color: var(--blue); }
+.bb-green  { background: var(--green-light);  color: var(--green); }
+.bb-orange { background: var(--orange-light); color: var(--orange); }
+.bb-purple { background: var(--purple-light); color: var(--purple); }
+
+/* ── Detail rows ── */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row .dr-label { color: var(--text-sub); }
+.detail-row .dr-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.detail-row .dr-val.blue   { color: var(--blue); }
+.detail-row .dr-val.green  { color: var(--green); }
+.detail-row .dr-val.red    { color: #dc2626; }
+.detail-row .dr-val.big    { font-size: 1.15rem; }
+
+.section-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: var(--orange-light);
+  color: var(--orange);
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin-bottom: 12px;
+}
+
+/* ── Fee badge in locked row ── */
+#feeRateDisplay { transition: color 0.2s; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>月月泰利 試算</h1>
+  <p>投資型保單 · 月配息 + 多配</p>
+</div>
+
+<div class="layout">
+
+  <!-- ── 左欄：輸入 ── -->
+  <div>
+    <div class="card">
+      <div class="card-title">輸入參數</div>
+      <div class="fields">
+
+        <div class="field">
+          <label>本金</label>
+          <div class="input-wrap">
+            <input type="number" id="principal" value="1000000" inputmode="numeric" min="0" step="10000">
+            <span class="suffix">元</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>買入淨值</label>
+          <div class="input-wrap">
+            <input type="number" id="buyNav" value="16.4" inputmode="decimal" min="0.01" step="0.01">
+            <span class="suffix">元</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>現在淨值（出場試算）</label>
+          <div class="input-wrap">
+            <input type="number" id="currentNav" value="16" inputmode="decimal" min="0.01" step="0.01">
+            <span class="suffix">元</span>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="field">
+          <label>正常配息月數</label>
+          <div class="input-wrap">
+            <input type="number" id="monthCount" value="24" inputmode="numeric" min="1" step="1">
+            <span class="suffix">月</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>多配次數</label>
+          <div class="input-wrap">
+            <input type="number" id="bonusCount" value="20" inputmode="numeric" min="0" step="1">
+            <span class="suffix">次</span>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 鎖定參數 -->
+        <div class="locked-row">
+          <span class="lk-label">行政費用率</span>
+          <span>
+            <span class="lk-val" id="feeRateDisplay">3.2%</span>
+            <span class="lk-badge auto" id="feeBadge">自動</span>
+          </span>
+        </div>
+        <div class="locked-row">
+          <span class="lk-label">月配息（每單位）</span>
+          <span><span class="lk-val">0.04167</span><span class="lk-badge">固定</span></span>
+        </div>
+        <div class="locked-row">
+          <span class="lk-label">多配（每單位/次）</span>
+          <span><span class="lk-val">0.1</span><span class="lk-badge">固定</span></span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 右欄：結果 ── -->
+  <div>
+    <div class="card">
+      <div class="card-title">進場試算結果</div>
+
+      <div class="big-grid">
+        <div class="big-box bb-blue">
+          <div class="bb-label">獲得單位數</div>
+          <div class="bb-val" id="r-units">—</div>
+        </div>
+        <div class="big-box bb-green">
+          <div class="bb-label">總配息</div>
+          <div class="bb-val" id="r-total">—</div>
+        </div>
+        <div class="big-box bb-orange">
+          <div class="bb-label">正常配息</div>
+          <div class="bb-val" id="r-normal">—</div>
+        </div>
+        <div class="big-box bb-purple">
+          <div class="bb-label">總多配</div>
+          <div class="bb-val" id="r-bonus">—</div>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="dr-label">行政費用</span>
+        <span class="dr-val" id="r-fee">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label">進場金額（扣費後）</span>
+        <span class="dr-val" id="r-invest">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label">每月配息</span>
+        <span class="dr-val blue" id="r-monthly">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label">多配 / 次</span>
+        <span class="dr-val blue" id="r-bonusper">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label" style="font-weight:700">配息報酬率</span>
+        <span class="dr-val green big" id="r-roi">—</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">出場試算</div>
+      <div class="section-tag">現在淨值</div>
+
+      <div class="detail-row">
+        <span class="dr-label">單位現值</span>
+        <span class="dr-val" id="e-unitval">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label">＋ 總配息</span>
+        <span class="dr-val blue" id="e-dist">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label">出場總金額</span>
+        <span class="dr-val" id="e-total">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label">與本金差額</span>
+        <span class="dr-val" id="e-diff">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="dr-label" style="font-weight:700">綜合報酬率</span>
+        <span class="dr-val big" id="e-roi">—</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const MONTHLY_RATE = 0.04167;
+  const BONUS_RATE   = 0.1;
+
+  function getFeeRate(principal) {
+    return principal > 2000000 ? 0.03 : 0.032;
+  }
+
+  function fmt(n, d = 0) {
+    return n.toLocaleString('zh-TW', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+
+  function fmtMoney(n, d = 0) {
+    return '$ ' + fmt(n, d);
+  }
+
+  function fmtPct(n) {
+    return (n * 100).toFixed(2) + '%';
+  }
+
+  function calculate() {
+    const principal  = parseFloat(document.getElementById('principal').value)  || 0;
+    const buyNav     = parseFloat(document.getElementById('buyNav').value)      || 0;
+    const currentNav = parseFloat(document.getElementById('currentNav').value) || 0;
+    const monthCount = parseInt(document.getElementById('monthCount').value)   || 0;
+    const bonusCount = parseInt(document.getElementById('bonusCount').value)   || 0;
+
+    if (!principal || !buyNav) return;
+
+    const feeRate = getFeeRate(principal);
+
+    // Update fee rate display
+    const feeDisplay = document.getElementById('feeRateDisplay');
+    const feeBadge   = document.getElementById('feeBadge');
+    feeDisplay.textContent = (feeRate * 100).toFixed(1) + '%';
+    if (principal > 2000000) {
+      feeDisplay.style.color = '#059669';
+      feeBadge.textContent = '超200萬';
+    } else {
+      feeDisplay.style.color = '';
+      feeBadge.textContent = '自動';
+    }
+
+    const fee        = principal * feeRate;
+    const invest     = principal - fee;
+    const units      = invest / buyNav;
+    const monthly    = units * MONTHLY_RATE;
+    const normalDist = monthly * monthCount;
+    const bonusPer   = units * BONUS_RATE;
+    const totalBonus = bonusPer * bonusCount;
+    const totalDist  = normalDist + totalBonus;
+    const roi        = totalDist / principal;
+
+    const unitVal   = units * currentNav;
+    const exitTotal = unitVal + totalDist;
+    const diff      = exitTotal - principal;
+    const exitRoi   = diff / principal;
+
+    // ─ 進場結果 ─
+    document.getElementById('r-units').textContent    = fmt(units, 1);
+    document.getElementById('r-total').textContent    = fmtMoney(totalDist);
+    document.getElementById('r-normal').textContent   = fmtMoney(normalDist);
+    document.getElementById('r-bonus').textContent    = fmtMoney(totalBonus);
+    document.getElementById('r-fee').textContent      = fmtMoney(fee);
+    document.getElementById('r-invest').textContent   = fmtMoney(invest);
+    document.getElementById('r-monthly').textContent  = fmtMoney(monthly, 0);
+    document.getElementById('r-bonusper').textContent = fmtMoney(bonusPer);
+    document.getElementById('r-roi').textContent      = fmtPct(roi);
+
+    // ─ 出場試算 ─
+    document.getElementById('e-unitval').textContent = fmtMoney(unitVal);
+    document.getElementById('e-dist').textContent    = fmtMoney(totalDist);
+    document.getElementById('e-total').textContent   = fmtMoney(exitTotal);
+
+    const diffEl = document.getElementById('e-diff');
+    diffEl.textContent = (diff >= 0 ? '＋ ' : '－ ') + fmtMoney(Math.abs(diff));
+    diffEl.className = 'dr-val big ' + (diff >= 0 ? 'green' : 'red');
+
+    const roiEl = document.getElementById('e-roi');
+    roiEl.textContent = fmtPct(exitRoi);
+    roiEl.className = 'dr-val big ' + (exitRoi >= 0 ? 'green' : 'red');
+  }
+
+  document.querySelectorAll('input').forEach(el => {
+    el.addEventListener('input', calculate);
+  });
+
+  calculate();
+</script>
+</body>
+</html>
