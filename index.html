@@ -412,7 +412,7 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
   const BONUS_RATE   = 0.1;
 
   function getFeeRate(principal) {
-    return principal > 2000000 ? 0.03 : 0.032;
+    return principal >= 2000000 ? 0.03 : 0.032;
   }
 
   function fmt(n, d = 0) {
@@ -443,7 +443,7 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
     const feeDisplay = document.getElementById('feeRateDisplay');
     const feeBadge   = document.getElementById('feeBadge');
     feeDisplay.textContent = (feeRate * 100).toFixed(1) + '%';
-    if (principalWan > 200) {
+    if (principalWan >= 200) {
       feeDisplay.style.color = '#059669';
       feeBadge.textContent = '超200萬';
     } else {
